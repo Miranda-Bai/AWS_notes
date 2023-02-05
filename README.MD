@@ -57,9 +57,9 @@ Groups cannot belong to groups.
     ]
 }
 ```
-# EC2 
+# EC2 = Elastic Compute Cloud = Infrastructure as a Service
 ## Create Instance
-> User data
+> User data script:
 ```
 #!/bin/bash
 #Use this for your user data (script from top to bottom)
@@ -70,3 +70,25 @@ systemctl start httpd
 systemctl enable httpd
 echo "<h1>Hello World from $(hostname -f)<h1>/var/www/html/index.html
 ```
+只选SSH和http.
+1. It mainly consists in the capability of:
+2. Renting vitual machines(EC2)
+3. Storing data on virtual drives(EBS)
+4. Scaling the services using an auto-scaling group(ASG)
+
+## EC2 User Data
+It is possible to bootstrap our instances using an EC2 User Data Script.
+Bootstrapping means launching commands when a machine starts.
+The script is only run once at the instance first start
+#### EC2 user data is used to automate boot task such as:
+* Installing updates
+* Installing software
+* Downloading common files from the Internet
+* Anything you can think of.
+> The EC2 User Data Script runs with the root user.
+Keypair use for SSH
+## EC2 Instance Types
+* m5.2xlarge
+* m:instance class
+* 5:generation(AWS improves them over time)
+* 2xlarge:size within the instance class
