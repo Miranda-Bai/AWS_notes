@@ -76,6 +76,8 @@ echo "<h1>Hello World from $(hostname -f)<h1>/var/www/html/index.html
 3. Storing data on virtual drives(EBS)
 4. Scaling the services using an auto-scaling group(ASG)
 
+> public IP port may change when you restart the instance
+
 ## EC2 User Data
 It is possible to bootstrap our instances using an EC2 User Data Script.
 Bootstrapping means launching commands when a machine starts.
@@ -92,3 +94,45 @@ Keypair use for SSH
 * m:instance class
 * 5:generation(AWS improves them over time)
 * 2xlarge:size within the instance class
+Balance between:
+* Compute
+* Memory
+* Networking
+EC2 instance comparison
+https://instances.vantage.sh/
+## Classic Ports to know
+* 22 = SSH(Secure Shell) - log into a Linux instance
+* 21 = FTP(File Transfer Protocol) - upload files into a file share
+* 22 = SFTP(Secure File Transfer Protocol) - upload files using SSH
+* 80 = HTTP - access unsecured websites
+* 443 = HTTPS - access secured websites
+* 3389 = RDP(Remote Desktop Protocol) - log into a Windows instance
+# SSH
+|               | SSH | Putty | EC2 instance connect |
+|:-------------:|:---:|:-----:|:--------------------:|
+| Mac           | Y   |       | Y                    |
+| Linux         | Y   |       | Y                    |
+| Windows >= 10 | Y   | Y     | Y                    |
+| Windows < 10  |     | Y     | Y                    |
+
+## How to SSH into your EC2 Instance using Linux / Mac OS X
+![Screenshot 2023-02-06 at 12.09.20 PM](assets/Screenshot%202023-02-06%20at%2012.09.20%20PM.png)
+![Screenshot 2023-02-06 at 12.09.36 PM](assets/Screenshot%202023-02-06%20at%2012.09.36%20PM.png)
+# EC2 Instances Purchasing Options
+1. On-Demand Instances - short workload, predictable pricing, pay by second
+2. Reserved(1&3 years)
+*     Reserved Instances - long workloads
+*     Convertible Reserved Instances - long workloads with flexible instan
+3. Saving Plans(1&3 years) -commitment to an amount of usage, long workload
+4. Spot Instances - short workloads, cheap, can lose instances(less reliable)
+5. Dedicated Hosts - book an entire physical server, control instance placement
+6. Dedicated Instances - no other customers will share your hardware
+7. Capacity Reservations - reserve capacity in a specific AZ for any duration
+
+
+
+
+
+
+
+
