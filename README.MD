@@ -128,6 +128,49 @@ https://instances.vantage.sh/
 5. Dedicated Hosts - book an entire physical server, control instance placement
 6. Dedicated Instances - no other customers will share your hardware
 7. Capacity Reservations - reserve capacity in a specific AZ for any duration
+# Elastic IP
+* With an Elastic IP address, you can mask the failure of an instance or software by rapidly remapping the address to another instance in your account.
+* You can only have 5 Elastic IP in your account(you can ask AWS to increase that)
+* Overall, try to avoid using Elastic IP, they often reflect poor architectural decisions. Instead, use a random public IP and register a DNS name to it. Or, use a Load Balancer and don't use a public IP.
+# ENI Elastic Network Interfaces
+Logical component in a VPC that represents a virtual network card
+The ENI can have the following attributes:
+    Primary private IPv4, one or more secondary IPv4
+    One Elastic IP(IPv4) per private IPv4
+    One Public IPv4
+    One or more security groups
+    A MAC address
+You can create ENI independently and attach them on the fly (move them) on EC2 instances for failover.
+Bound to a specific availability zone (AZ)
+# EC2 Hibernate
+1. Introducing EC2 Hibernate:
+    The in-memory(RAM) state is preserved
+    The instance boot is much faster!(the OS is not stopped / restarted)
+    Under the hood: the RAM state is written to a file in the root EBS volume
+    The root EBS volume must be encrypted
+2. Use cases:
+    Long-running processing
+    Saving the RAM state
+    Services that take time to initialize
+3. Good to know
+    Supported Instance Families - C3,C4,C5,I3,M3,M4,R3,R4,T2,T3....
+    Instance RAM Size - must be less than 150GB
+    Instance Size - not supported for bare metal instances.
+    AMI - Amazon Linux 2, Linux AMI, Ubuntu, RHEL, CentOS & Windows....
+    Root Volume - must be EBS, encrypted, not instance store, and large.
+    Available for On-Demand, Reserved and Spot Instances
+    An instance can NOT be hibernated more than 60 days.
+# EC2 Instance Storage Section
+## EBS Volume
+An EBS (Elastic Block Store) Volume is a network drive you can attach to your instances while they run
+It allows your instances to persist data, even after their termination.
+They can only be mounted to one instance at a time (at the CCP level)
+> Note: CCP - Certified Cloud Practitioner - one EBS can be only mounted to one EC2 instance
+> Associate Level (Solutions Architect, Developer, SysOps): "multi-attach" feature for some EBS
+They are bound to a specific availability zone
+Analogy: Think of them as a "network USB stick"
+
+
 
 
 
