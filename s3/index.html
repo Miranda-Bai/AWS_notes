@@ -1,0 +1,24 @@
+<html lang="en">
+  <head>
+    <title>My First Webpage</title>
+  </head>
+  <body>
+    <h1>I love tea</h1>
+    <p>Hello world!</p>
+  </body>
+  <img src="coffee.jpg" width="500" />
+
+  <!-- CORS demo -->
+  <div id="tofetch"></div>
+  <script>
+    let tofetch = document.querySelector("#tofetch");
+    // fetch("extra-page.html")
+    fetch("http://demo-miranda-cors-2023.s3-website-ap-southeast-2.amazonaws.com/extra-page.html")
+      .then((response) => {
+        return response.text();
+      })
+      .then((html) => {
+        tofetch.innerHTML = html;
+      });
+  </script>
+</html>

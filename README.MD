@@ -169,7 +169,45 @@ They can only be mounted to one instance at a time (at the CCP level)
 > Associate Level (Solutions Architect, Developer, SysOps): "multi-attach" feature for some EBS
 They are bound to a specific availability zone
 Analogy: Think of them as a "network USB stick"
+# Solution Architecture
+# S3 Encryption
+## SSE-S3
+encryption using keys handled & managed by Amazon S3
+Object is encrypted server side
+AES-256 encryption type
+Must set header: "x-amz-server-side-encryption":"AES256"
+## SSE-KMS
+encryption using keys handled & managed by KMS
+KMS advantages: user control + audit trail
+Object is encrypted server side
+Must set header: "x-amz-server-side-encryption":"aws:kms"
+## SSE-C
+server-side encryption using data keys fully managed by the customer outside of AWS
+Amazon S3 does not store the encryption key you provide
+HTTPS must be used
+Encryption key must provided in HTTP headers, for every HTTP request made
+## Client Side Encryption
+Client library such as the Amazon S3 Encryption Client
+Clients must encrypt data themselves before sending to S3
+Clients must decrypt data themselves when retrieving from S3
+Customer fully manages the keys and encryption cycle
+# Encryption in transit (SSL/TLS)
+Amazon S3 exposes:
+    HTTP endpoint: non encrypted
+    HTTPS endpoint: encryption in flight
+You're free to use the endpoint you want, but HTTPS is recommended
+Most clients would use the HTTPS endpoints by default
+HTTPS is mandatory for SSE-C
+Encryption in flight is also called SSL/TLS
 
+Note: an IAM principal can access an S3 object is
+    the user IAM permissions allow it OR the resource policy ALLOWS it.
+    AND there's no explicit DENY. 
+# CORS
+An origin is a scheme (protocol), host(domain) and port
+    implied port is 443 for HTTPS, 80 from HTTP
+CORS means Cross-Origin Resource Sharing
+Web Browser based mechanism to allow requests to other origins while visiting the main origin 
 
 
 
