@@ -209,8 +209,33 @@ An origin is a scheme (protocol), host(domain) and port
 CORS means Cross-Origin Resource Sharing
 Web Browser based mechanism to allow requests to other origins while visiting the main origin 
 
-
-
+IAM Policy Simulator
+https://policysim.aws.amazon.com/home/index.jsp?#roles/MyFirstEC2Role
+# AWS EC2 Instance Metadata
+It is powerful but one of the least known features to developers
+It allows AWS EC2 instance to "learn about themselves" without using an IAM Role for that purpose
+The URL is http://169.254.169.254/latest/meta-data
+You can retrieve the IAM Role name from the metadata, but you CANNOT retrieve the IAM Policy.
+Metadata = Info about the EC2 instance
+Userdata = launch script of the EC2 instance
+# AWS SDK
+We have to use the AWS SDK when coding against AWS Services such as DynamoDB
+# Advanced S3
+## S3 MFA-Delete
+MFA (multi factor authentication) forces user to generate a code on a device (usually a mobile phone or hardware) before doing important operations on S3.
+To use MFA-Delete, enable Versioning on the S3 bucket.
+You will need MFA to
+    permanently delete an object version
+    suspend versioning on the bucket
+You won't need MFA for
+    enabling versioning
+    listing deleted versions
+Only the bucket owner (root account) can enable/disable MFA-Delete
+MFA-Delete currently can only be enabled using the CLI
+## S3 Access Logs: Warning
+Do not set your logging bucket to be the monitored bucket
+It will create a logging loop, and your bucket will grow in size exponentially
+o
 
 
 
