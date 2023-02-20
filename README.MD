@@ -235,7 +235,20 @@ MFA-Delete currently can only be enabled using the CLI
 ## S3 Access Logs: Warning
 Do not set your logging bucket to be the monitored bucket
 It will create a logging loop, and your bucket will grow in size exponentially
-o
+## S3 Byte-Range Fetches
+Parallelize GETs by requesting specific byte ranges
+Better resilience in case of failure
+Can be used to speed up downloads
+Can be used to retrieve only partial data (for example the head of a file)
+# CloudFront
+Content Delivery Network (CDN)
+Improves read performance, content is cached at the edge
+216 Point of Presence globally (edge locations)
+DDoS protection, integration with Shielf, AWS Web Application Firewall
+Can expose external HTTPS and can talk to internal HTTPS backends
+## AWS Global accelerator
+Unicast IP: one server holds one IP address
+Anycast IP: all servers hold the same IP address and the client is routed to the nearest one
 
 
 
