@@ -249,6 +249,11 @@ Can expose external HTTPS and can talk to internal HTTPS backends
 ## AWS Global accelerator
 Unicast IP: one server holds one IP address
 Anycast IP: all servers hold the same IP address and the client is routed to the nearest one
+# AWS Snow Family
+Highly-secure, portable devices to collect and process data at the edge, and migrate data into and out of AWS
+Data migration: Snowcone, Snowball Edge, Snowmobile
+Edge computing: Snowcone, Snowball Edge
+
 
 
 
