@@ -253,7 +253,62 @@ Anycast IP: all servers hold the same IP address and the client is routed to the
 Highly-secure, portable devices to collect and process data at the edge, and migrate data into and out of AWS
 Data migration: Snowcone, Snowball Edge, Snowmobile
 Edge computing: Snowcone, Snowball Edge
+## Sloution Architecture: Snowball into Glacier
+Snowball cannot import to Glacier directly
+You must use Amazon S3 first, in combination with an S3 lifecycle policy
+# Amazon FSx
+Launch 3rd party high-performance file systems on AWS
+Fully managed service
+FSx for Lustre, FSx for NetApp ONTAP, FSx for Windows File Server, FSx for OpenZFS
+## Hybrid Cloud for Storage
+AWS is pushing for "hybrid cloud"
+    Part of your infrastructure is on the cloud
+    Part of your infrastructure is on-premises
+This can be due to
+    Long cloud migrations
+    Security requirements
+    Compliance requirements
+    IT strategy
+S3 is a proprietary storage technology (unlike EFS / NFS), so how do you expose the S3 data on-premises?
+    AWS storage gateway
+## AWS Storage Cloud Native Options
+Block: Amazon EBS, EC2 Instance Store
+File: Amazon EFS, Amazon FSx
+Object: Amazon S3, Amazon Glacier
+## AWS Storage Gateway
+Bridge between on-premises data and cloud data
+Use cases:
+    disaster recovery
+    backup & restore
+    tiered storage
+    on-premises cache & low-latency files access
+Types of Storage Gateway:
+    S3 File Gateway
+    FSx File Gateway
+    Volume Gateway
+    Tape Gateway
+## AWS Transfer Family
+A fully-managed service for file transfers into and out of Amazon S3 or Amazon EFS using the FTP protocol
+Support Protocols
+    AWS Transfer for FTP (File Transfer Protocol (FTP))
+    AWS Transfer for FTPS (File Transfer Protocol over SSL (FTPS))
+    AWS Transfer for SFTP (Secure File Transfer Protocol (SFTP))
+Managed infrastructure, Scalable, Reliable, Highly Available (multi-AZ)
+Pay per provisioned endpoint per hour + data transfers in GB
+Store and manage users' credentials within the service
 
+## AWS DataSync
+Move large amount of data to and from
+    on-premises/other cloud to AWS (NFS, SMB, HDFS, S3 API...)- needs agent
+    AWS to AWS (different storage services) - no agent needed
+Can synchronize to:
+    Amazon S3 (any storage classes - including Glacier)
+    Amazon EFS
+    Amazon FSx (Windows, Lustre, NetApp, OpenZFS...)
+Replication tasks can ebe scheduled hourly, daily, weekly
+File permissions and metadata are preserved (NFS POSIX, SMB...)
+One agent task can use 10Gbps, can setup a bandwidth limit
+# AWS Integration and Messaging
 
 
 
