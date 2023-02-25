@@ -309,8 +309,236 @@ Replication tasks can ebe scheduled hourly, daily, weekly
 File permissions and metadata are preserved (NFS POSIX, SMB...)
 One agent task can use 10Gbps, can setup a bandwidth limit
 # AWS Integration and Messaging
+Synchronous between applications can be problematic if there are sudden spikes of traffic
+What if you need to suddenly encode 1000 videos but usually it's 10?
+In that case, it's better to decouple your applications
+    using SQS: queue model
+    using SNS: pub/sub model
+    using Kinesis: real-time streaming model
+These Services can scale independently from our application
+## Amazon SQS -  Standard Queue
+Oldest offering (over 10 years old)
+Fully managed service, used to decouple applications
+Attributes:
+    Unlimited throughput, unlimited number of messages in queue
+    Default retention of messages: 4 days, maximum of 14 days
+    Low latency (<10 ms on publish and receive)
+    Limitation of 256KB per message sent
+Can have duplicate messages (at least once delivery, occasionally)
+Can have out of order messages (best effort ordering)
+## SQS - Producing Messages
+Produced to SQS using the SDK (SendMessage API)
+The message is persisted in SQS until a consumer deletes it
+Message retention: default 4 days, up to 14 days
+Example: send an order to be processed
+    Order id
+    Customer id
+    Any attributes you want
+SQS standard: unlimited throughput(吞吐量)
+## SQS - Consuming Messages
+Consumers (running on EC2 instances, servers, or AWS Lambda)...
+Poll(测验,调查) SQS for messages (receive up to 10 messages at a time)
+## SQS - Multiple EC2 Instances Consumers
+Consumers receive and process messages in parallel
+At least once delivery
+Best-effort message ordering
+Consumers delete messages after processing them
+We can scale consumers horizontally to improve throughput of processing
+## Amazon SQS - Security
+Encryption
+    In-flight encryption using HTTPS API
+    At-rest encryption using KMS keys
+    Client-side encryption if the client wants to perform encryption/decryption iteself
+Access Controls: IAM policies to regulate access to the SQS API
+SQS Access Policies (similar to S3 bucket policies)
+    Useful for cross-account access to SQS queues
+    Useful for allowing other services (SNS,S3...) to write to an SQS queue
+## SQS - Message Visibility Timeout
+After a message is polled by a consumer, it becomes invisible to other consumers
+By default, the "messge visibility timeout" is 30 seconds
+That means the message has 30 seconds to be processed
+After the message visibility timeout is over, the message is "visible" in SQS
+## Amazon SQS - Long Polling
+When a consumer requests messages from the queue, it can optionally "wait" for messages to arrive if there are none in the queue
+This is called Long Polling
+LongPolling decreases the number of API calls made to SQS while increasing the efficiency and latency of your application
+The wait time can be between 1s to 20s (20s preferable)
+Long Polling is preferable to Short Polling
+Long polling can be enabled at the queue level or at the API level using WaitTimeSeconds.
+## Amazon SQS - FIFO Queue
+FIFO = First In First Out (ordering of messages in the queue)
+Limited throughput: 300 msg/s without batching, 3000 msg/s with
+Exactly-once send capability (by removing duplicates)
+Messages are processed in order by the consumer
+## SQS with Auto Scaling Group (ASG)
+If the load is too big, some transactions may be lost
+SQS as a buffer to database writes
+## Amazon SNS - Simple Notification Service
+The "event producer" only sends message to one SNS topic
+As many "event receivers" (subscriptions) as we want to listen to the SNS topic notifications
+Each subscriber to the topic will get all the message (note:new feature to filter messages)
+Up to 12,500,000 subscriptions per topic
+100,000 topics limit
+## SNS integrates with a lot of AWS services
+Many AWS services can send data directly to SNS for notification
+## AWS SNS - How to publish
+Topic Publish (using the SDK)
+    Create a topic
+    Create a subscription (or many)
+    Publish to the topic
+Direct Publish (for mobile apps SDK)
+    Create a platform application
+    Create a platform endpoint
+    Publish to the platform endpoint
+    Works with Google GCM, Apple APNS, Amazon ADM...
+## Amazon SNS - Security
+Encryption
+    In-flight encryption using HTTPS API
+    At-rest encryption using KMS keys
+    Client-side encryption if the client wants to perform encryption/decryption iteself
+    
+Access Controls: IAM policies to regulate access to the SNS API
+
+SQS Access Policies (similar to S3 bucket policies)
+    Useful for cross-account access to SNS topics
+    Useful for allowing other services (S3...) to write to an SNS topic
+## SNS + SQS: Fan Out
+Push once in SNS, receive in all SQS queues that are subscribers
+Fully decoupled, no data loss
+SQS allows for: data persistence, delayed processing and retries of work
+Ability to add more SQS subscribers over time
+Make suer your SQS queue access policy allows for SNS to write
+## Application: S3 Events to multiple queues
+For the same combination of: event type (e.g. object create) and prefix(e.g.images/) you can only have one S3 Event rule
+If you want to send the same S3 event to many SQS queues, use fan-out
+## Application: SNS to Amazon S3 through Kinesis Data Firehose
+SNS can send to Kinesis and thereforee we can have the following solutions architecture:
+Buying Service --> SNS Topic --> Kinesis Data Firehose --> Amazon S3
+## Amazon SNS - FIFO Topic
+Similar features as SQS FIFO
+Can only have SQS FIFO queues as subscribers
+Limited throughput (same throughput as SQS FIFO)
+In case you need fan out + ordering + deduplication(重复数据删除)
+## SNS - Message Filtering
+JSON policy used to filter messages send to SNS topic's subscriptions
+If a subscription doesn't have a filter policy, it receives every message
+
+# Kinesis
+Makes it easy to collect, process, and analyze streaming data in real-time
+Ingest real-time data such as: Application logs, Metrics, Website clickstreams, IoT telemetry data...
+Kinesis Data Streams: capture, process, and store data streams
+Kinesis Data Firehose: load data streams into AWS data stores
+Kinesis Data Analytics: analyze data streams with SQL or Apahe Flink
+Kinesis Video Streams: capture, process, and store video streams
+## Kinesis Data Streams
+Retention(保留) between 1 day to 365 days
+Ability to reprocess (replay) data
+Once data is inserted in Kinesis, it can't be deleted (immutability)
+Data that shares the same partition goes to the same shard (ordering)
+Producers: AWS SDK, Kinesis Producer Library(KPL), Kinesis Agent
+Consumers:
+    Write your own: Kinesis Client Library(KCL), AWS SDK
+    Managed: AWS Lambda, Kinesis Data Firehose, Kinesis Data Analytics
+## Kinesis Data Streams - Capacity Modes
+Provisioned mode:
+    You choose the number of shards provisioned, scale manually or using API
+    Each shard gets 1 MB/s in (or 1000 records per second)
+    Each shard gets 2 MB/s out (classic or enhanced fan-out consumer)
+    You pay per shard provisioned per hour
+On-demand mode:
+    No need to provision or manage the capacity
+    Default capacity provisioned (4 MB/s in or 4000 records per second)
+    Scales automatically based on observed throughput peak during the last 30 days
+    Pay per stream per hour & data in/out per GB
+## Kinesis Data Streams Security
+Control access / authorization using IAM policies
+Encryption in flight using HTTPS endpoints
+Encryption at rest using KMS
+You can implement encryption/decryption of data on client side(harder)
+VPC Endpoints available for Kinesis to access within VPC
+Monitor API calls using CloudTrail(云轨)
+# Container
+## Docker
+Docker is a software development platform to deploy apps
+Apps are packaged in containers that can be run on any OS
+Apps run the same, regardless of where they're run
+    Any machine
+    No compatibility issues
+    Predictable behavior
+    Less work
+    Easier to maintain and deploy
+    Works with any language, any OS, any technology
+Use cases: microservices architecture, lift-and-shift apps from on-premises to the AWS cloud...
+## Docker versus Virtual Machines
+Docker is "sort of" a virtualization technology, but not exactly
+Resources are shared with the host => many containers on one server
+## Docker Containers Management on AWS
+Amazon Elastic Container Service (Amazon ECS)
+    Amazon's own container platform
+Amazon Elastic Kubernetes Service (Amazon EKS)
+    Amazon's managed Kubernetes (open source)
+## Amazon ECS - EC2 Launch Type
+ECS = Elastic Container Service
+Launch Docker containers on AWS = Launch ECS Tasks on ECS Clusters
+EC2 Launch Type: you must provision & maintain the infrastructure (the EC2 instances)
+Each EC2 Instance must run the ECS Agent to register in the ECS Cluster
+AWS takes care of starting/stopping containers
+## Amazon ECS - Fargate Launch Type
+Launch Docker containers on AWS
+You do not provision the infrastructure (no EC2 instances to manage)
+It's all Serverless
+You just create task definitions
+AWS just runs ECS Tasks for you based on the CPU / RAM you need
+To scale, just increase the number of tasks. Simple - no more EC2 instances
+Amazon ECS - IAM Roles for ECS
+EC2 instance Profile (EC2 Launch Type only):
+    Used by the ECS angent
+    Makes API calls to ECS service
+    Send container logs to CloudWatch Logs
+    Pull Docker image from ECR
+    Reference sensitive data in Secret Manager or SSM Parameter Store
+ECS Task Role:
+    Allows each task to have a specific role
+    Use different roles for the different ECS Services you run
+    Task Role is defined in the task definition
+## Amazon ECS - Load Balancer Integrations
+* Application Load Balancer supported and works for most use cases
+* Network Load Balancer recommended only for high throughput / high performance use cases, or to pair it with AWS Private Link
+* Elastic Load Balancer supported but not recommended (no advanced features - no Fargate)
+## Amazon ECS -  Data Volumes (EFS)
+Mount EFS file systems onto ECS tasks
+Works for both EC2 and Fargate launch types
+Tasks running in any AZ will share the same data in the EFS file system
+Fargate + EFS = Serverless
+Use cases: persistent multi-AZ shared storage for your containers
+Note:
+    Amazon S3 cannot be mounted as a file system
+## ECS Service Auto Scaling
+Automatically increase/decrease the desired number of ECS tasks
+Amazon ECS Auto Scaling uses AWS Application Auto Scaling
+    ECS Service Average CPU Utilization
+    ECS Service Average Memory Utilization - Scale on RAM
+    ALB Request Count Per Target - metric coming from the ALB
+Target Tracking - scale based on target value for a specific CloudWatch metric
+Step Scaling - scale based on a specified CloudWatch Alarm
+Scheduled Scaling - scale based on a specified date/time (predictable changes)
+
+ECS Service Auto Scaling (task level) ≠ EC2 Auto Scaling (EC2 instance level)
+Fargate Auto Scaling is much easier to setup (because Serverless)
+## EC2 Launch Type - Auto Scaling EC2 Instances
+Accommodate ECS Service Scaling by adding underlying EC2 Instances
+
+Auto Scaling Group Scaling
+    Scale your ASG based on CPU Utilization
+    Add EC2 instances over time
+
+ECS Cluster Capacity Provider
+    Used to automatically provision and scale the infrastructure for your ECS Tasks
+    Capacity Provider paired with an Auto Scaling Group
+    Add EC2 Instances when you're missing capacity (CPU, RAM...)
 
 
+ 
 
 
 
