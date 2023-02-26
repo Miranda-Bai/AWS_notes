@@ -537,6 +537,103 @@ ECS Cluster Capacity Provider
     Capacity Provider paired with an Auto Scaling Group
     Add EC2 Instances when you're missing capacity (CPU, RAM...)
 
+# Serverless
+Initially... Serverless == Faas(Function as a Service)
+Serverless was pioneered by AWS Lambda but now also includes anything that's managed: "database, messaging, storage, etc."
+
+Serverless does not mean there are no servers...
+it means you just don't manage / provision / see them
+# Serverless in AWS
+AWS Lambda
+DynamoDB
+AWS Cognito
+AWS API Gateway
+Amazon S3
+AWS SNS & SQS
+AWS Kinesis Data Firehose
+Aurora Serverless
+Step Functions
+Fargate
+## AWS Lambda
+Virtual functions - no servers to manage
+Limited by time - short executions
+Run on-demand(按需)
+Scaling is automated
+## Benefits of AWS Lambda
+Easy Pricing:
+    Pay per request and compute time
+    Free tier of 1,000,000 AWS Lambda requests and 400,000 GBs of compute time
+Integrated with the whole AWS suite of services
+Integrated with many programming languages
+Easy monitoring through AWS CloudWatch
+Easy to get more resources per functions (up to 10GB of RAM)
+Increasing RAM will also improve CPU and network
+## AWS Lambda language support
+Node.js (Javascript)
+Python
+Java (Java 8 compatible)
+C# (.Net Core)
+Golang
+C# / Powershell
+Ruby
+Custom Runtime API (community supported, example Rust)
+
+Lambda Container Image
+    The container image must implement the Lambda Runtime API
+    ECS / Fargate is preferred for running arbitrary Docker images
+## AWS Lambda Integrations
+Main ones
+API Gateway, Kinesis, DynamoDB, S3, CloudFront, CloudWatch Events EventBridge, CloudWatch Logs, SNS, SQS, Cognito
+## AWS Lambda Limits to Know - per region
+Execution:
+    Memory allocation: 128MB - 10GB (1MB increments)
+    Maximum execution time: 900 seconds (15 minutes)
+    Environment variable (4KB)
+    Disk capacity in the "function container"(in/tmp):512MB to 10GB
+    Concurrency executions:1000 (can be increased)
+Deployment:
+    Lambda function deployment size (compressed.zip): 50MB
+    Size of uncompressed deployment (code + dependencies): 250MB
+    Can use the /tmp directory to load other files at startup
+    Size of environment variable: 4KB
+## Lambda by default
+By default, your Lambda function is launched outside your own VPC (in an AWS-owned VPC)
+Therefore, it cannot access resources in your VPC (RDS, ElasticCache, internal ELB...)
+
+**Lambda in VPC**
+You must define the VPC ID, the Subnets and the Security Groups
+Lambda will create an ENI (Elastic Network Interface) in your subnets
+
+**Lambda with RDS Proxy**
+If Lambda functions directly access your database, they may open too many connections under high load
+
+**RDS Proxy**
+    Improve scalability by pooling and sharing DB connections
+    Improve availability by reducing by 66% the failover time and preserving connections
+    Improve security by enforcing IAM authentication and storing credentials in Secrets Manager
+> The Lambda function must be deployed in your VPC, because RDS Proxy is never publicly accessible
+
+## Amazon DynamoDB
+Fully managed, highly available with replication across multiple AZs
+NoSQL database - not a relational database - with transaction support
+Scales to massive workloads, distributed database
+Millions of requests per second, trillions of row, 100s of TB of storage
+Fast and consistent in performance (single-digit millisecond)
+Integrated with IAM for security, authorization and administration
+Low cost and auto-scaling capabilities
+No maintenance(维护) or patching, always available
+Standard & Infrequent Access (IA) Table Class
+## DynamoDB - Basics
+DynamoDB is made of Tables
+Each table has a Primary Key (must be decided at creation time)
+Each table can have an infinite number of items (=rows)
+Each items has attributes (can be added over time - can be null)
+Maximum size of an item is 400KB
+Data types supported are:
+    Scalar Types - String, Number, Binary, Boolean, Null
+    Document Types - List, Map
+    Set Types - String Set, Number Set, Binary Set
+> Therefore, in DynamoDB you can rapidly evolve schemas
 
  
 
