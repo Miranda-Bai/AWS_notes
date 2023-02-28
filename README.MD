@@ -707,8 +707,158 @@ Export to S3 without using RCU within the PITR window, import from S3 without us
 S3 is a ... key/value store for objects
 Great for bigger objects, not so great for many small objects
 Serverless, scales infinitely, max object size is 5 TB, versioning capability
-Tiers:
+Tiers: S3 Standard, S3 Infrequent Access, S3 Intelligent, S3 Glacier + lifecycle policy
+Features: Versioning, Encryption, Replication, MFA-Delete, Access Logs...
+Security: IAM, Bucket Policies, ACL, Access Points, Object Lambda, CORS, Object/Vault Lock
+Encryption: SSE-S3, SSE-KMS, SSE-C, client-side, TLS in transit, defualt encryption
+Batch operations on objects using S3 Batch, listing files using S3 Inventory
+Performance: Multi-part upload, S3 Transfer Acceleration, S3 Select
+Automation: S3 Event Notifications (SNS, SQS, Lambda, EventBridge)
 
+Use Cases: static files, key value store for big files, website hosting
+## DocumentDB
+Aurora is an "AWS-implementation" of PostgreSQL / MySQL
+DocumentDB is the same for MongoDB (which is a NoSQL database)
 
+MongoDB is used to store, query, and index JSON data
+Similar "deployment concepts" as Aurora
+Fully managed, highly available with replication across 3 AZ
+Aurora storage automatically grows in increments of 10GB, up to 64TB
 
+Automatically scales to workloads with millions of requests per seconds
+## Amazon Neptune
+Fully managed graph database
+A popular graph dataset would be a social network
+    Users have friends
+    Posts have comments
+    Comments have likes from users
+    Users share and like posts...
+Highly available across 3 AZ, with up to 15 read replicas
+Build and run applications working with highly connected datasets - optimized for these complex and hard queries
+Can store up to billions of relations and query the graph with milliseconds latency
+Highly avaiable with replications across multiple AZs
+Great for knowledge graphs (Wikipedia), fraud detection, recommendation engines, social networking
+## Amazon Keyspaces (for Apache Cassandra)
+Apache Cassandra is an open-source NoSQL distributed database
+A managed Apache Cassandra - compatible database service
+Serverless, Scalable, highly available, fully managed by AWS
+Automatically scale talbes up/down based on the application's traffic
+Tables are replicated 3 times across multiple AZ
+Using the Cassandra Query Language (CQL)
+Single-digit millisecond latency at any scale, 1000s of requests per second
+Capacity: On-demand mode or provisioned mode with auto-scaling
+Encryption, backup, Point-In-Time Recovery (PITR) up to 35 days
+
+Use cases: store IoT devices info, time-series data,...
+## Amazon QLDB
+QLDB stands for "Quantum Ledger Database"
+A ledger is a book recording financial transactions
+Fully managed, Serverless, High available, Replication across 3 AZ
+Used to **review history of all the changes made to your application data** over time
+Immutable system: no entry can be removed or modified, cryptographically verifiable
+2-3x better performance than common ledger blockchain frameworks, manipulate data using SQL
+Difference with Amazon Managed Blockchain: **no decentralization component**, in accordance with financial regulation rules
+## Amazon Timestream
+Fully managed, fast, scalable, serverless time series database
+Automatically scales up/down to adjust capacity
+Store and analyze trillions of events per day
+1000s times faster & 1/10th the cost of relational database
+Scheduled queries, multi-measure records, SQL compatibility
+Data storage tiering: recent data kept in memory and historical data kept in a cost-optimized storage
+Build-in time series analytics functions (helps you identify patterns in your data in near real-time)
+Encryption in transit and at rest
+
+Use cases: IoT apps, operational applications, real-time analytics,...
+# Amazon Athena
+Serverless query service to analyze data stored in Amazon S3
+Uses standard SQL language to query the files (built on Presto)
+Supports CSV, JSON, ORC, Avro, and Parquet
+Pricing: $5.00 per TB of data scanned
+Commonly used with Amazon Quicksight for reporting/dashboards
+**Use cases**: Business intelligence / analytics / reporting, analyze & query VPC Flow Logs, ELB Logs, **CloudTrail trails**, etc....
+
+## Amazon Athena - Performance Improvement
+Use columnar data for cost-savings (less scan)
+    Apache Parquet or ORC is recommended
+    Huge performance improvement
+    Use Glue to convert your data your Parquet or ORC
+Compress data for smaller retrievals (bzip2, gzip, lz4, snappy, zlip, zstd...)
+Partition datasets in S3 for easy querying on virtual columns
+Use larger files (> 128MB) to minimize overhead
+# Redshift Overview
+Redshift is based on PostgreSQL, but it's not used for OLTP
+It's OLAP - online anlytical processing (Analytics and data warehousing)
+10x better performance than other data warehouses, scale to PBs of data
+Columnar storage of data (instead of row based) & parallel query engine
+Pay as you go based on the instances provisoned
+Has a SQL interface for performing the queries
+Bl tools such as Amazon Quicksight or Tableau integrate with it
+**vs Athena**: faster queries / joins / aggregations thanks to indexes
+## Redshift Cluster
+Leader node: for query planning, results aggregation
+Compute node: for performing the queries, send results to leader
+You provison the node size in advance
+You can used Reserved Instances for cost savings
+## Redshift - Snapshots & DR
+Redshift has no "Multi-AZ" mode
+Snapshots are point-in-time backups of a cluster, stored internally in S3
+Snapshots are incremental (only what has changed is saved)
+You can restore a snapshot into a new cluster
+Automated: every 8 hours, every 5GB, or on a schedule. Set retention
+Manual: snapshot is retained until you delete it
+You can configure Amazon Redshift to automatically copy snapshots (automated or manual) of a cluster to another AWS Region
+## Redshift Spectrum
+Query data that is already in S3 without loading it
+Must have a Redshift cluster available to start the query
+The query is then submitted to thousands of Redshift Spectrum nodes
+# Amazon OpenSearch Service
+Amazon OpenSearch is successor to Amazon ElasticSearch
+In DynamoDB, queries only exist by primary key or indexes...
+With OpenSearch, you can search any field, even partially matches
+It's common to use OpenSearch as a complement to another database
+OpenSearch requires a cluster of instances (not serverless)
+Does not support SQL (it has its own query language)
+Ingestion from Kinesis Data Firehose, AWS IoT, and CloudWatch Logs
+Security through Cognito & IAM, KMS encryption, TLS
+Comes with OpenSearch Dashboards (visualization)
+# Amazon EMR
+EMR stands for Elastic MapReduce(分布式计算系统)
+EMR helps creating Hadoop clusters (Big Data) to analyze and process vast amount of data
+The clusters can be made of hundreds of EC2 instances
+EMR comes bundled with Apache Spark, HBase, Presto, Flink...
+EMR takes care of all the provisioning and configuration
+Auto-scaling and integrated with Spot instances
+
+**Use cases:** data processing, machines learning, web indexing, big data...
+## Amazon EMR- Node types & purchasing
+Master Node: Manage the cluster, coordinate, manage health - long running
+Core Node: Run tasks and store data - long running
+Task Node (optional): Just to run tasks - usually Spot
+Purchasing options:
+    On-demand: reliable, predictable, won't be terminated
+    Reserved (min 1 year): cost savings (EMR will automatically use if available)
+    Spot Instances: cheaper, can be terminated, less reliable
+Can have long-running cluster, or transient (temporary) cluster
+# Amazon QuickSight
+Serverless machine learning-powered business intelligence service to create interactive dashboards
+Fast, automatically scalable, embeddable, with per-session pricing
+Use cases:
+    Business analytics
+    Building visualizations
+    Perform ad-hoc analysis
+    Get business insights using data
+Integrated with RDS, Aurora, Athena, Redshift, S3...
+In-memory computation using SPICE engine if data is imported into QuickSight
+Enterprise edition: Possibility to setup Column-Level security(CLS)
+## QuickSight - Dashboard & Analysis
+Define Users (standard version) and Groups (enterprise version)
+    These users & groups only exist within QuickSight, not IAM
+A dashboard...
+    is a read-only snapshot of an analysis that you can share
+    preserves the configuration of the analysis (filtering, parameters, controls, sort)
+
+You can share the analysis or the dashboard with Users or Groups
+To share a dashboard, you must first publish it
+Users who see the dashboard can also see the underlying data
+# AWS Glue
 
