@@ -861,4 +861,58 @@ You can share the analysis or the dashboard with Users or Groups
 To share a dashboard, you must first publish it
 Users who see the dashboard can also see the underlying data
 # AWS Glue
+Managed extract, transform, and load (ETL) service
+Useful to prepare and transform data for analytics
+Fully serverless service
+# Kinesis Data Analytics for SQL applications
+Real-time analytics on Kinesis Data Streams & Firehose using SQL
+Add reference data from Amazon S3 to enrich streaming data
+Fully managed, no servers to provision
+Automatic scaling
+Pay for actual consumption rate
+Output:
+    Kinesis Data Stream: create streams out of the real-time analytics queries
+    Kinesis Data Firehose: send analytics query results to destinations
+Use cases:
+    Time-series analytics
+    Real-time dashboards
+    Real-time metrics
+## Kinesis Data Analytics for Apache Flink
+Use Flink (Java, Scala or SQL) to process and analyze streaming data
+Run any Apache Flink application on a managed cluster on AWS
+    provisioning compute resources, parallel computation, automatic scaling
+    application backups (implemented as checkpoints and snapshots)
+    Use any Apache Flink programming features
+    Flink does not read from Firehose (use Kinesis Analytics for SQL instead)
+# Amazon Managed Streaming for Apache Kafka (Amazon MSK)
+Alternative to Amazon Kinesis
+Fully managed Apache Kafka on AWS
+    Allow you to create, update, delete clusters
+    MSK creates & manages Kafka brokers nodes & Zookeeper nodes for you
+    Deploy the MSK cluster in your VPC, multi-AZ (up to 3 for HA)
+    Automatic recovery from common Apache Kafka failures
+    Data is stored on EBS volumes for as long as you want
+    
+MSK Serverless
+    Run Apache Kafka on MSK without managing the capacity
+    MSK automatically provisions resources and scales compute & storage
+## Kinesis Data Streams VS Amazon MSK 
+| Kinesis Data Streams      | Amazon MSK                                  |
+|:--------------------------|:--------------------------------------------|
+| 1MB message size limit    | 1MB default, configure for higher (ex:10MB) |
+| Data Streams with Shards  | Kafka Topics with Partitions                |
+| Shard Splitting & Merging | Can only add partitions to a topic          |
+| TLS In-flight encryption  | PLAINTEXT or TLS In-flight Encryption       |
+| KMS at-rest encryption    | KMS at-rest encryption                      |
+
+# Big Data Ingestion Pipeline
+We want the ingestion pipeline to be fully serverless
+We want to collect data in real time
+We want to transform the data
+We want to query the transformed data using SQL
+The reports created using the queries should be in S3
+We want to load that data into a warehouse and create dashboards
+## Big Data Ingestion Pipeline
+IoT devices -->Kinesis data streams-->kinesis data firehose --> S3....
+
 
