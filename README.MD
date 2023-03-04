@@ -914,5 +914,378 @@ The reports created using the queries should be in S3
 We want to load that data into a warehouse and create dashboards
 ## Big Data Ingestion Pipeline
 IoT devices -->Kinesis data streams-->kinesis data firehose --> S3....
+# Amazon Rekognition
+Find objects, people, text, scenes in images and videos using ML
+Facial analysis and facial search to do user verification, people counting
+Create a database of "familiar faces" or compare against celebrities
+Use cases:
+    Labeling
+    Content Moderation
+    Text Detection
+    Face Detection and Analysis (gender, age, range, emotions...)
+    Face Search and Verification
+    Celebrity Recognition
+    Pathing (ex: for sports game analysis)
+# Amazon Transcribe
+Automativally convert speech to text
+Uses a deep learning process called automatic speech recognition (ASR) to convert speech to text quickly and accurately
+Automatically remove Personally Identifiable Information (PII) using Redaction
+Use cases:
+    transcribe customer service calls
+    automate closed captioning and subtitling
+    generate metadata for media assets to create a fully searchable archive
+# Amazon Polly
+Turn text into lifelike speech using deep learning
+Allowing you to create applications that talk
+## Amazon Polly - Lexicon & SSML
+Customize the pronunciation of words with Pronunciation lexicons
+    Stylized words: St3ph4ne => "Stephane"
+    Acronyms: AWS => "Amazon Web Services"
+Upload the lexicons and use them in the SynthesizeSpeech operation
 
+Generate speech from plain text or from documents marked up with Speech
+Synthesis Markup Language (SSML) - enables more customization
+    emphasizing specific words or phrases
+    using phonetic pronunciation
+    including breathing sounds, whispering
+    using the Newscaster speaking style
+# Amazon Translate
+Natural and accurate language translation
+Amazon Translate allows you to localize content - such as websites and applications - for international users, and to easily translate large volumes of text efficiently.
+# Amazon Lex & Connect
+Amazon Lex: (same technology that powers Alexa)
+    Automatic Speech Recognition (ASR) to convert speech to text
+    Natural Language Understanding to recognize the intent of text,callers
+    Helps build chatbots, call center bots
+Amazon Connect:
+    Receive calls, create contact flows, cloud-based virtual contact center
+    Can integrate with other CRM systems or AWS
+    No upfront payments, 80% cheaper than tranditional contact center solutions
 
+# Amazon Comprehend
+For Natural Language Processing - NLP
+Fully managed and serverless service
+Uses machine learning to find insights and relationships in text
+    Language of the text
+    Extracts key phrases, places, people, brands, or events
+    Understands how positive or negative the text is
+    Analyzes text using tokenization and parts of speech
+    Automatically organizes a collection of text files by topic
+Sample use cases:
+    analyze customer interactions (emails) to find what leads to a positive or negative experience
+    Create and groups articles by topic that Comprehend will uncover
+## Amazon Comprehend Medical
+Amazon Comprehend Medical detects and returns useful information in unstructured clinical text:
+    Physician's notes
+    Discharge summaries
+    Test results
+    Case notes
+Uses NLP to detect Protected Health Information (PHI) - *DetectPHI API*
+Store your documents in Amazon S3, analyze real-time data with Kinesis Data Firehose, or use Amazon Transcribe to transcribe patient narratives into text that can be analyzed by Amazon Comprehend Medical.
+
+# Amazon SageMaker
+Fully managed service for developers / data scientists to build ML models
+Typically difficult to do all the processes in one place + provision servers
+Machine learning process (simplified): predicting your exam score
+
+# Amazon Forecase
+Fully managed service that uses ML to deliver highly accurate forecasts
+Example: predict the future sales of a raincoat
+50% more accurate than looking at the data itself
+Reduce forecasting time from months to hours
+Use cases: Product Demand Planning, Financial Planning, Resource Planning,...
+# Amazon Kendra
+Fully managed document search service powered by Machine Learning
+Extract answers from within a document (text, pdf, HTML, PowerPoint, MS Word, FAQs...)
+Natural language search capabilities
+Learn from user interactions/feedback to promote preferred results (Incremental Learning)
+Ability to manually fine-tune search results (importance of data, freshness, custom,...)
+# Amazon Personalize
+Fully managed ML-service to build apps with real-time personalized recommendations
+Example: Personalized product recommendations/re-ranking, customized direct marketing
+    Example:User bought gardening tools, provide recommendations on the next one to buy
+Same technology used by Amazon.com
+Integrates into existing websites, applications, SMS, email marketing systems,...
+Implement in days, not months (you don't need to build, train, and deploy ML solutions)
+Use cases: retial stores, media and entertainment...
+
+# Amazon Textract
+Automatically extracts text, handwriting, and data from any scanned documents using AI and ML
+
+Extract data from forms and tables
+Read and process any type of document (PDFs, images,...)
+Use cases:
+    Financial Services (e.g., invoices, financial reports)
+    Healthcare (e.g., medical records, insurance claims)
+    Public Sector (e.g., tax forms, ID documents, passports)
+
+# AWS Monitoring
+## Amazon CloudWatch Metrics(指标)
+CloudWatch provides metrics for every services in AWS
+Metric is a variable to monitor (CPU Utilization, NetworkIn...)
+Metrics belong to namespaces
+Dimension is an attribute of a metric (instance id, environment, etc...)
+Up to 10 dimensions per metric
+Metrics have timestamps
+Can create CloudWatch dashboards of metrics
+Can create CloudWatch Custom Metrics (for the RAM for example)
+
+## CloudWatch Metric Streams
+Continually stream CloudWatch metrics to a destination of your choice, with near-real-time delivery and low latency.
+    Amazon Kinesis Data Firehose (and then its destinations)
+    3rd party service provider: Datadog, Dynatrace, New Relic, Splunk, Sumo Logic...
+    
+Option to filter metrics to only stream a subset of them
+## CloudWatch Logs
+Log groups: arbitrary name, usually representing and application
+Log stream: instances with application / log files / containers
+Can define log expiration policies (never expire, 30 days, etc...)
+CloudWatch Logs can send logs to:
+    Amazon S3 (exports)
+    Kinesis Data Streams
+    Kinesis Data Firehose
+    AWS Lambda
+    ElasticSearch
+## CloudWatch Logs - Sources
+SDK, CloudWatch Logs Agent, CloudWatch Unified Agent
+Elastic Beanstalk: collection of logs from application
+ECS: collection from containers
+AWS Lambda: collection from function logs
+VPC Flow Logs: VPC specific logs
+API Gateway
+CloudTrail based on filter
+Route53: Log DNS queries
+
+## CloudWatch Logs Metrics Filter & Insights
+CloudWatch Logs can use filter expressions
+    For example, find a specific IP inside of a log
+    Or count occurrences of "ERROR" in your logs
+Metric filters can be used to trigger CloudWatch alarms
+CloudWatch Logs Insights can be used to query logs and add queries to CloudWatch Dashboards
+## CloudWatch Logs - S3 Export
+Log data can take up to 12 hours to become available for export
+The API call is CreateExportTask
+
+Not near-real time or real-time... use Logs Subscriptions instead
+## CloudWatch Log Subscriptions
+
+## CloudWatch Logs for EC2
+By default, no logs from your EC2 machine will go to CloudWatch
+You need to run a CloudWatch agent on EC2 to push the log files you want
+Make sure IAM permissions are correct
+The CloudWatch log agent can be setup on-premises too
+
+## CloudWatch Logs Agent & Unified Agent
+For virtual servers (EC2 instances, on-premise servers...)
+CloudWatch Logs Agent
+    Old version of the agent
+    Can only send to CloudWatch Logs
+
+CloudWatch Unified Agent
+    Collect additional system-level metrics such as RAM, processes, etc...
+    Collect logs to send to CloudWatch Logs
+    Centralized configuration using SSM Parameter Store
+## CloudWatch Unified Agent - Metrics
+Collect directly on your Linux server / EC2 instance
+
+CPU (active, guest, idle, system, user, steal)
+Disk metrics (free, used, total), Disk IO (writes, reads, bytes, iops)
+RAM (free, inactive, used, total, cached)
+Netstat (number of TCP and UDP connections, net packets, bytes)
+Processes (total, dead, bloqued, idle, running, sleep)
+Swap Space (free, used, used %)
+
+Reminder: out-of-the box metrics for EC2 - disk, CPU, network (high level)
+
+## CloudWatch Alarms
+Alarms are used to trigger notifications for any metric
+Various options (sampling, %, max, min, etc...)
+Alarm States:
+    OK
+    INSUFFICIENT_DATA
+    ALARM
+Period:
+    Length of time in seconds to evaluate the metric
+    High resolution custom metrics: 10 sec, 30 sec or multiples of 60 sec
+
+## CloudWatch Alarm Targets
+Stop, Terminate, Reboot, or Recover an EC2 Instance
+Trigger Auto Scaling Action
+Send notification to SNS (from which you can do pretty much anything)
+
+# EC2 Instance Recovery
+Status Check:
+    Instance status = check the EC2 VM
+    System status = check the underlying hardware
+
+Recovery: Same Private, Public, Elastic IP, metadata, placement group
+
+## CloudWatch Alarm: good to know
+Alarms can be created based on CloudWatch Logs Metrics Filters
+To test alarms and notifications, set the alarm state to Alarm using CLI
+
+aws cloudwatch set-alarm-state --alarm-name "myalarm" --state-value ALARM 
+--state-reason "testing purpose"
+
+## Amazon EventBridge (formerly CloudWatch Events)
+Schedule: Cron jobs (scheduled scripts)
+Event Pattern: Event rules to react to a service doing something
+Trigger Lambda functions, send SQS/SNS messages...
+
+## CloudWatch Container Insights
+Collect, aggregate, summarize metrics and logs from containers
+Available for containers on...
+    Amazon Elastic Container Service (Amazon ECS)
+    Amazon Elastic Kubernetes Services (Amazon EKS)
+    Kubernetes platforms on EC2
+    Fargate (both for ECS and EKS)
+## CloudWatch Lambda Insights
+Monitoring and troubleshooting solution for serverless applications running on AWS Lambda
+Collect, aggregates, and summarizes system-level metrics including CPU time, memory, disk, and network
+Collect, aggregates, and summarizes diagnostic information such as cold starts and Lambda worker shutdowns
+Lambda Insight is provided as a Lambda Layer
+
+## CloudWatch Contributor Insights
+Analyze log data and create time series that display contributor data
+    See metrics about the top-N contributors
+    The total number of unique contributors, and their usage
+This helps you find top talkers and understand who or what is impacting system performance
+Works for any AWS-generated logs (VPC, DNS, etc...)
+For example, you can find bad hosts, **identify the heaviest network users**, or find the URLs that generate the most errors.
+You can build your rules from scratch, or you can also use sample rules that AWS has created - leverages your CloudWatch Logs
+CloudWatch also provides built-in rules that you can use to analyze metrics from other AWS services
+
+## CloudWatch Application Insights
+Provides automated dashboards that show potential problems with monitored applications, to help isolate ongoing issues
+You applications run on Amazon EC2 Instances with select technologies only (Java, .Net, Microsoft IIS Web Server, databases...)
+And you can use other AWS resources such as Amazon EBS, RDS, ELB, ASG, Lambda, SQS, DynamoDB, S3 bucket, ECS, EKS, SNS, API Gateway...
+
+Powered by SageMaker
+Enhanced visibility into your application health to reduce the time it will take you to troubleshoot and repair your applications
+Findings and alerts are sent to Amazon EventBridge and SSM OpsCenter
+
+## CloudWatch Insights and Operational Visibility
+CloudWatch Container Insights
+    ECS, EKS, Kubernetes on EC2, Fargate, needs agent for Kubernetes
+    Metrics and logs
+    
+CloudWatch Lambda Insights
+    Detailed metrics to troubleshoot serverless applications
+
+CloudWatch Contributors Insights
+    Find "Top-N" Contributors through CloudWatch Logs
+
+CloudWatch Application Insights
+    Automatic dashboard to troubleshoot your application and related AWS services
+
+## AWS CloudTrail
+Provides governance, compliance and audit for your AWS Account
+CloudTrail is enabled by default
+Get an history of events / API calls made within your AWS Account by:
+    Console
+    SDK
+    CLI
+    AWS Services
+Can put logs from CloudTrail into CloudWatch Logs or S3
+A trail can be applied to All Regions (default) or a single Region.
+**If a resource is deleted in AWS, investigate CloudTrail first!**
+
+## CloudTrail Events
+Management Events:
+    Operations that are performed on resources in your AWS account
+    Examples:
+        Configuring security (IAM **AttachRolePolicy**)
+        Configuring rules for routing data (Amazon EC2 **CreateSubnet**)
+        Setting up logging (AWS CloudTrail **CreateTrail**)
+    By default, trails are configured to log management events.
+    Can separate Read Events (that don't modify resources) from Write Events (that may modify resources)
+
+Data Events:
+    By default, data events are not logged (because high volume operations)
+    Amazon S3 object-level activity (ex: GetObject, DeleteObject, PutObject): can separate Read and Write Events
+    AWS Lambda function execution activity (the Invoke API)
+
+## CloudTrail Insight (Events)
+Enable CloudTrail Insights to detect unusual activity in your account
+    inaccurate resource provisioning
+    hitting service limits
+    Bursts of AWS IAM actions
+    Gaps in periodic maintenance activity
+
+CloudTrail Insights analyzes normal management events to create a baseline
+And then continuously analyze write events to detect unusual patterns
+    Anomalies(反常现象) appear in the CloudTrail console
+    Event is sent to Amazon S3
+    An EventBridge event is generated (for automation needs)
+    
+## CloudTrail Events Retention(保存)
+Events are stored for 90 days in CloudTrail
+To keep events beyond this period, log them to S3 and use Athena
+
+## AWS Config
+Helps with auditing and recording compliance of your AWS resources
+Helps record configurations and changes over time
+Questions that can be solved by AWS Config:
+    Is there unrestricted SSH access to my security groups?
+    Do my buckets have any public access?
+    How has my ALB configuration changed over time?
+You can receive alerts (SNS notifications) for any changes
+AWS Config is a per-region service
+Can be aggregated across regions and accounts
+Possibility of storing the configuration data into S3 (analyzed by Athena)
+## Config Rules
+Can use AWS managed config rules (over 75)
+Can make custom config rules (must be defined in AWS Lambda)
+    Ex: evaluate if each EBS disk is of type gp2
+    Ex: evaluate if each EC2 instance is t2.micro
+Rules can be evaluated / triggered:
+    For each config change
+    And / or: at regular time intervals
+AWS Config Rules does not prevent actions from happening (no deny)
+Pricing: no free tier, 0.003 per configuration item recorded per region, 0.001 per config rule evaluation per region.
+
+## AWS Config Resource
+View compliance of a resource over time
+
+View configuration of a resource over time
+
+View CloudTrail API calls of a resource over time
+
+## Config Rules - Remediations(改良剂)
+Automate remediation of non-compliant resources using SSM Automation Documents
+Use AWS-Managed Automation Documents or create custom Automation Documents
+    Tip: you can create custom Automation Documents that invokes Lambda function
+You can set Remediation Retries if the resource is still non-compliant after auto-remediation
+
+## Config Rules - Notifications
+Use EventBridge to trigger notifications when AWS resources are non-compliant
+
+Ability to send configuration changes and compliance state notifications to SNS (all events - use SNS Filtering or filter at client-side)
+
+# CloudWatch vs CloudTrail vs Config
+CloudWatch
+    Performance monitoring (metrics, CPU, network, etc...) & dashboards
+    Events & Alerting
+    Log Aggregation & Analysis
+CouldTrail
+    Record API calls made within your Account by everyone
+    Can define trails for specific resources
+    Global Service
+Config
+    Record configuration changes
+    Evaluate resources against compliance rules
+    Get timeline of changes and compliance
+## For an Elastic Load Balancer
+CloudWatch:
+    Monitoring Incoming connections metric
+    Visualize error codes as a % over time
+    Make a dashboard to get an idea of your load balancer performance
+Config:
+    Track security group rules for the Load Balancer
+    Track configuration changes for the Load Balancer
+    Ensure an SSL certificate is always assigned to the Load Balancer (compliance)
+    
+CloudTrail:
+    Track who made any changes to the Load Balancer with API calls
+    
+    
