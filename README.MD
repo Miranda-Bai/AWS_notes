@@ -1288,4 +1288,220 @@ Config:
 CloudTrail:
     Track who made any changes to the Load Balancer with API calls
     
+# AWS Organizations
+Global service
+Allows to manage multiple AWS accounts
+The main account is the management account
+Other accounts are member accounts
+Member accounts can only be part of one organization
+Consolidated(统一的) Billing across all accounts - single payment method
+Pricing benefits from aggregated usage (volume discount for EC2, S3...)
+Shared reserved instances and Saving Plans discounts across accounts
+API is available to automate AWS creation
+
+Root Organization Unit (OU)
+
+## Advantages
+Multi Account vs One Account MultiVPC
+Use tagging standards for billing purposes
+Enable CloudTrail on all accounts, send logs to central S3 account
+Send CloudWatch Logs to central logging account
+Establish Cross Account Roles for Admin purposes
+## Security: Service Control Policies(SCP)
+IAM policies applied to OU or Accounts to restrict Users and Roles
+They do not apply to the management account (full admin power)
+Must have an explicit(清楚明白的) allow (does not allow anything by default - like IAM)
+
+Management Account:
+    Can do anything
+    (no SCP apply)
+Account A:
+    Can do anything
+    EXCEPT access Redshift
+    (explicit Deny from OU)
+## SCP (Service Control Policies)
+Blocklist and Allowlist strategies
+
+# IAM Conditions
+## IAM Roles vs Resource Based Policies
+When you assume a role (user, application or service), you give up your original permissions and take the permissions assigned to the role
+
+When using a resource based policy, the principal(负责人) doesn't have to give up his permissions
+
+Example: User in account A needs to scan a DynamoDB table in Account A and dump it in an S3 bucket in Account B.
+
+Supported by: Amazon S3 buckets, SNS topics, SQS queues
+
+Cross account:
+    attaching a resource-based policy to a resource (example: S3 bucket policy)
+    OR using a role as a proxy
+
+**Differences**  
+When you assume a role (user, application or service), you give up your original permissions and take the permissions assigned to the role
+When using a resource-based policy, the principal doesn't have to give up his permissions
+<u>Example:</u> User in account A needs to scan a DynamoDB table in Account A and dump it in an S3 bucket in Account B.
+Supported by: Amazon S3 buckets, SNS topics, SQS queues, etc...
+## Amazon EventBridge - Security
+When a rule runs, it needs permissions on the target
+Resource-based policy: Lambda, SNS, SQS, CloudWatch Logs, API Gateway...
+IAM role: Kinesis stream, Systems Manager Rum Command, ECS task...
+
+# IAM Permission Boundaries
+IAM Permission Boundaries are supported for users and roles (not groups)
+Advanced feature to use a managed policy to set the maximum permissions an IAM entity can get.
+> An IAM Permission Boundary is the only thing the user or role can do even though the user attached all permissions.
+
+# AWS Single Sign-On (SSO)
+Replaced by AWS IAM Identity Center
+Centrally manage Single Sign-On to access multiple accounts and 3rd-party business applications
+Integrated with AWS Organizations
+Supports SAML 2.0 markup
+Integration with on-premise Active Directory
+Centralized permission management
+Centralized auditing(审计) with CloudTrail
+
+> Security Assertion Markup Language (SAML)(安全断言标记语言)
+
+## SSO vs AssumeRoleWithSAML
+
+# Amazon Cognito
+Give users an identity to interact with our web or mobile application
+Cognito User Pools:
+    Sign in functionality for app users
+    Integrate with API Gateway & Application Load Balancer
     
+Cognito Identity Pools (Federated Identity):
+    Provide AWS credentials to users so they can access AWS resources directly
+    Integrate with Cognito User Pools as an identity provider
+
+Cognito vs IAM: "hundreds of users", "mobile users", "authenticate with SAML"
+
+## Cognito User Pools (CUP) - User Features
+Create a serverless database of user for your web & mobile apps
+Simple login: Username (or email) / password combination
+Password reset
+Email & Phone Number Verification
+Multi-factor authentication (MFA)
+Federated Identities: users from Facebook, Google, SAML...
+## Cognito User Pools (CUP) - Integrations
+CUP integrates with API Gateway and Application Load Balancer
+
+# AWS Security & Encryption - Important
+## Encryption in flight (SSL)
+Data is encrypted before sending and decrypted after receiving
+SSL certificates help with encryption (HTTPS)
+Encryption in flight ensures no MITM (main in the middle attack) can happen
+
+## Server side encryption at rest
+Data is encrypted after being received by the server
+Data is decrypted before being sent
+It is stored in an encrypted form thanks to a key (usually a data key)
+The encryption / decryption keys must be managed somewhere and the server must have access to it
+
+## Client side encryption
+Data is encrypted by the client and never decrypted by the server
+Data will be decrypted by a receiving client
+The server should not be able to decrypt the data
+Could leverage(利用) Envelope Encryption
+
+## AWS KMS (Key Management Service)
+Anytime you hear "encryption" for an AWS service, it's most likely KMS
+AWS manages encryption keys for us
+Fully integrated with IAM for authorization
+Easy way to control access to your data
+Able to audit KMS Key usage using CloudTrail
+Seamlessly(无缝地) integrated into most AWS services (EBS, S3, RDS, SSM...)
+Never ever store your secrets in plaintext, especially in your code!
+    KMS Key Encryption also available through API calls (SDK, CLI)
+    Encrypted secrets can be stored in the code / environment variables
+## KMS Keys Types
+KMS Keys is the new name of KMS Customer Master Key
+Symmetric(对称的) (AES-256 keys)
+    Single encryption key that is used to Encrypt and Decrypt
+    AWS services that are integrated with KMS use Symmetric CMKs
+    You never get access to the KMS Key unencrypted (must call KMS API to use)
+
+Asymmetric(不对称的) (RSA & ECC key pairs)
+    Public (Encrypt) and Private Key (Decrypt) pair
+    Used for Encrypt/Decrypt, or Sign/Verify operations
+    The public key is downloadable, but you can't access the Private Key unencrypted
+    Use case: encryption outside of AWS by users who can't call the KMS API
+
+Three types of KMS Keys:
+    AWS Managed Key: free (aws/service-name, example: aws/rds or aws/ebs)
+    Customer Managed Keys (CMK) created in KMS: 1 dollar/month
+    Customer Managed Keys imported (must be 256-bit symmetric key): 1 dollar/month + pay for API call to KMS (0.03 dollars / 10000 calls)
+    
+Automatic Key rotation:
+    AWS-managed KMS Key: automatic every 1 year
+    Customer-managed KMS Key: (must be enabled) automatic every 1 year
+    Imported KMS Key: only manual rotation possible using alias
+    
+KMS Key Policies
+Control access to KMS keys, "similar" to S3 bucket policies
+Difference: you cannot control access without them
+
+Default KMS Key Policy:
+    Created if you don't provide a specific KMS Key Policy
+    Complete access to the key to the root user = entire AWS account
+Custom KMS Key Policy:
+    Define users, roles that can access the KMS key
+    Define who can administer the key
+    Useful for cross-account access of your KMS key
+
+Copying Snapshots across accounts
+1. Create a Snapshot, encrypted with your own KMS Key (Customer Managed Key)
+2. Attach a KMS Key Policy to authorize cross-account access
+3. Share the encrypted snapshot
+4. (in target) Create a copy of the Snapshot, encrypt it with a CMK in your account
+5. Create a volume from the snapshot
+
+## KMS Multi-Region Keys
+Identical KMS keys in different AWS Regions that can be used interchangeably
+Multi-Region keys have the same key ID, key material, automatic rotation...
+
+Encrypt in one Region and decrypt in other Regions
+No need to re-encrypt or making cross-Region API calls
+
+KMS Multi-Region are NOT global (Primary + Replicas)
+Each Multi-Region key is managed independently
+
+Use cases: global client-side encryption, encryption on Global DynamoDB, Global Aurora
+
+## DynamoDB Global Tables and KMS Multi-Region Keys Client-Side encryption
+We can encrypt specific attributes client-side in our DynamoDB table using the Amazon DynamoDB Encryption Client
+
+Combined with Global Tables, the client-side encrypted data is replicated to other regions
+
+If we use a multi-region key, replicated in the same region as the DynamoDB Global table, then clients in these regions can use low-latency API calls to KMS in their region to decrypt the data client-side
+
+Using client-side encryption we can protect specific fields and guarantee only decryption if the client has access to an API key
+
+## Global Aurora and KMS Multi-Region Keys Client-Side encryption
+We can encrypt specific attributes client-side in our Aurora table using the AWS Encryption SDK
+
+Combined with Aurora Global Tables, the client-side encrypted data is replicated to other regions
+
+If we use a multi-region key, replicated in the same region as the Global Aurora DB, then clients in these regions can use low-latency API calls to KMS in their region to decrypt the data client-side
+
+Using client-side encryption we can protect specific fields and guarantee only decryption if the client has access to an API key, we can protect specific fields even from database admins
+
+## S3 Replication Encryption Considerations
+Unencrypted objects and objects encrypted with SSE-S3 are replicated(重复的) by default
+Objects encrypted with SSE-C (customer provided key) are never replicated
+
+For objects encrypted with SSE-KMS, you need to enable the option
+    Specify which KMS Key to encrypt the objects within the target bucket
+    Adapt the KMS Key Policy for the target key
+    An IAM Role with kms:Decrypt for the source KMS Key and kms:Encrypt for the target KMS Key
+    You might get KMS throttling(节流调节) errors, in which case you can ask for a Service Quotas increase
+
+You can use multi-region AWS KMS Keys, but they are currently treated as independent keys by Amazon S3 (the object will still be decrypted and then encrypted)
+
+## AMI Sharing Process Encrypted via KMS
+1. AMI in Source Account is encrypted with KMS Key from Source Account
+2. Must modify the image attribute to add a Launch Permission which corresponds to the specified target AWS account
+3. Must share the KMS Keys used to encrypted the snapshot the AMI references with the target account / IAM Role
+4. The IAM Role/User in the target account must have the permissions to DescribeKey, ReEncrypted, CreateGrant, Decrypt
+5. When launching an EC2 instance from the AMI, optionally the target account can specify(明确指出) a new KMS key in its own account to re-encrypt the volumes
+
