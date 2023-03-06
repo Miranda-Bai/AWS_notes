@@ -1505,3 +1505,345 @@ You can use multi-region AWS KMS Keys, but they are currently treated as indepen
 4. The IAM Role/User in the target account must have the permissions to DescribeKey, ReEncrypted, CreateGrant, Decrypt
 5. When launching an EC2 instance from the AMI, optionally the target account can specify(明确指出) a new KMS key in its own account to re-encrypt the volumes
 
+## SSM Parameter Store (AWS Systems Manager -> Parameter Store)
+Secure storage for configuration and secrets
+Optional Seamless Encryption using KMS
+Serverless, scalable, durable, easy SDK
+Version tracking of configurations / secrets
+Configuration management using path & IAM
+Notifications with CloudWatch Events
+Integration with CloudFormation
+```
+aws ssm get-parameters --names /my-app/dev/db-url /my-app/dev/db-password 
+--with-decryption
+
+aws ssm get-parameters-by-path help
+aws ssm get-parameters-by-path --path /my-app/dev/
+aws ssm get-parameters-by-path --path /my-app/ --recursive(递归的)
+```
+## AWS Secrets Manager
+Newer service, meant for storing secrets
+Capability(能力) to force rotation(轮流) of secrets every X days
+Automate generation of secrets on rotation (uses Lambda)
+Integration with Amazon RDS (MySQL, PostgreSQL, Aurora)
+Secrets are encrypted using KMS
+
+Mostly meant for RDS integration
+
+## AWS Certificate Manager (ACM)
+Easily provision, manage, and deploy TLS(Transport Layer Security) Certificates
+Provide in-flight encryption for websites (HTTPS)
+Supports both public and private TLS certificates
+Free of charge for public TLS certificates
+Automatic TLS certificate renewal
+Integrations with (load TLS certificates on)
+    Elastic Load Balancers (CLB, ALB, NLB)
+    CloudFront Distributions
+    APIs on API Gateway
+Cannot use ACM with EC2 (can't be extracted)
+
+## ACM - Requesting Public Certificates
+1. List domain names to be included in the certificate
+    Fully Qualified Domain Name (FQDN):corp.example.com
+    Wildcard Domain:*.example.com
+2. Select Validation Method:DNS Validation or Email validation
+    DNS Validation is preferred for automation purposes
+    Email validation will send emails to contact addresses in the WHOIS database
+    DNS Validation will leverage a CNAME record to DNS config (ex:Route 53)
+3. It will take a few hours to get verified
+4. The Public Certificate will be enrolled for automatic renewal
+    ACM automatically renews ACM-generated certificates 60 days before expiry
+## ACM - Importing Public Certificates
+Option to generate the certificate outside of ACM and then import it
+No automatic renewal, must import a new certificate before expiry
+ACM sends daily expiration events starting 45 days prior to expiration
+    The # of days can be configured
+    Events are appearing in EventBridge
+AWS Config has a managed rule named acm-certificate-expiration-check to check for expiring certificates
+(configurable number of days)
+
+## ACM - Integration with ALB (Application Load Balancer)
+## API Gateway - Endpoint Types
+Edge-Optimized (default): For global clients
+    Requests are routed through the CloudFront Edge locations (improves latency)
+    The API Gateway still lives in only one region
+Regional:
+    For clients within the same region
+    Could manually combine with CloudFront (more control over the caching strategies and the distribution)
+Private:
+    Can only be accessed from your VPC using an interface VPC endpoint (ENI)
+    Use a resource policy to define access
+
+## ACM - Integration with API Gateway
+Create a Custom Domain Name in API Gateway
+Edge-Optimized (default): For global clients
+    Requests are routed through the CloudFront Edge locations (improves latency)
+    The API Gateway still lives in only one region
+    The TLS Certificate must be in the same region as CloudFront, in use-west-2
+    The setup CNAME or (better) A-Alias record in Route 53
+
+Regional:
+    For clients within the same region
+    The TLS Certificate must be imported on API Gateway, in the same region as the API Stage
+    Then setup CNAME or (better) A-Alias record in Route 53
+
+## AWS WAF - Web Application Firewall
+Protects your web applications from common web exploits (Layer 7)
+Layer 7 is HTTP (vs Layer 4 is TCP/UDP)
+
+Deploy(部署) on
+    Application Load Balancer
+    API Gateway
+    CloudFront
+    AppSync GraphQL API
+    Cognito User Pool
+
+Define Web ACL (Web Access Control List) Rules:
+    IP Set: up to 10,000 IP addresses - use multiple Rules for more IPs
+    HTTP headers, HTTP body, or URI strings Protects from common attack - SQL injection and Cross-Site Scripting (XSS)
+    Size constraints, geo-match (block countries)
+    Rate-based rules (to count occurrences of events) - for DDoS protection
+
+Web ACL are Regional except for CloudFront
+A rule group is a reusable set of rules that you can add to a web ACL
+
+## WAF - Fixed IP while using WAF with a Load Balancer
+WAF does not support the Network Load Balancer (Layer 4)
+We can use Global Accelerator for fixed IP and WAF on the ALB
+
+## AWS Shield: protect from DDoS attack
+DDoS: Distributed Denial of Service - many requests at the same time
+AWS Shield Standard:
+    Free service that is activated for every AWS customer
+    Provides protection from attacks such as SYN/UDP Floods, Reflection attacks and other layer 3/layer 4 attacks
+AWS Shield Advanced:
+    Optional DDoS mitigation service ($3,000 per month per organization)
+    Protect against more sophisticated attack on Amazon EC2, Elastic Load Balancing(ELB), Amazon CloudFront, AWS Global Accelerator, and Route 53
+    24/7 access to AWS DDoS response team (DRP)
+    Protect against higher fees during usage spikes due to DDos
+    Shield Advanced automatic application layer DDoS mitigation automatically creates, evaluates and deploys AWS WAF rules to mitigate layer 7 attacks
+
+## AWS Firewall Manager
+Manage rules in all accounts of an AWS Organization
+
+Security policy: common set of security rules
+    WAF rules (Application Load Balancer, API Gateways, CloudFront)
+    AWS Shield Advanced (ALB, CLB, NLB, Elastic IP, CloudFront)
+    Security Groups for EC2, Application Load Balancer and ENI resources in VPC
+    AWS Network Firewall (VPC Level)
+    Amazon Route 53 Resolver DNS Firewall
+    Policies are created at the region level
+    
+Rules are applied to new resources as they are created (good for complicance) across all and future accounts in your Organization
+
+## WAF vs Firewall Manager vs Shield
+WAF, Shield and Firewall Manager are used together for comprehensive protection
+Define your Web ACL rules in WAF
+For granular(颗粒的) protection of your resources, WAF alone is the correct choice
+
+If you want to use AWS WAF across accounts, accelerate WAF configuration, automate the protection of new resources, use Firewall Manager with AWS WAF
+
+Shield Advanced adds additional features on top of AWS WAF, such as dedicated support from the Shield Response Team (SRT) and advanced reporting.
+
+If you're prone to frequent DDoS attacks, consider purchasing Shield Advanced
+
+## AWS Best Practices for DDoS Resiliency(弹性,跳回) Edge Location Mitigation(缓和) (BP1, BP3)
+BPI - CloudFront
+    Web Application delivery at the edge
+    Protect from DDoS Common Attacks (SYN floods, UDP reflection...)
+BPI - Global Accelerator
+    Access your application from the edge
+    Integration with Shield for DDoS protection
+    Helpful if your backend is not compatible with CloudFront
+BP3 - Route 53
+    Domain Name Resolution at the edge
+    DDoS Protection mechanism
+
+Infrastructure layer defense (BP1, BP3, BP6)
+    Protect Amazon EC2 against high traffic
+    That includes using Global Accelerator, Route 53, CloudFront, Elastic Load Balancing
+
+Amazon EC2 with Auto Scaling (BP7)
+    Help scale in case of sudden traffic surges including a flash crowd or a DDoS attack
+
+Elastic Load Balancing (BP6)
+    Elastic Load Balancing scales with the traffic increases and will distribute the traffic to many EC2 instances
+    
+Detect and filter malicious(恶意的) web requests (BP1, BP2)
+    CloudFront cache static content and serve it from edge locations, protecting your backend
+    AWS WAF is used on top of CloudFront and Application Load Balancer to filter and block requests based on request signatures 
+    WAF rate-based rules can automatically block the IPs of bad actors
+    Use managed rules on WAF to block attacks based on IP reputation, or block anonymous lps
+    CloudFront can block specific geographies
+
+Shield Advanced (BP1, BP2, BP6)
+    Shield Advanced automatic application layer DDoS mitigation automatically creates, evaluates and deploys AWS WAF rules to mitigate layer 7 attacks
+    
+**Attack surface reduction**
+Obfuscating(弄暗淡) AWS resources (BP1, BP4, BP6)
+    Using CloudFront, API Gateway, Elastic Load Balancing to hide your backend resources (Lambda functions, EC2 instances)
+    
+Security groups and Network ACLs (BP5)
+    Use security groups and NACLs to filter traffic based on specific IP at the subnet or ENI-level
+    Elastic IP are protected by AWS Shield Advanced
+
+Protecting API endpoints (BP4)
+    Hide EC2, Lambda, elsewhere
+    Edge-optimized mode, or CloudFront + regional mode (more control for DDoS)
+    WAF + API Gateway: burst limits, headers filtering, use API keys
+
+## Amazon GuardDuty
+Intelligent Threat discovery to Protect AWS Account
+Uses Machine Learning algorithms, anomaly detection, 3rd party data
+One click to enable (30 days trial), no need to install software
+Input data includes:
+    CloudTrail Events Logs - unusual API call, unauthorized deployments
+        CloudTrail Management Events - create VPC subnet, create trail, ...
+        CloudTrail S3 Data Events - get object, list objects, delete object,...
+    VPC Flow Logs - unusual internal traffic, unusual IP address
+    DNS Logs - compromised EC2 instances sending encoded data within DNS queries
+    Kubernetes Audit Logs - suspicious activities and potential EKS cluster compromises
+
+Can setup CloudWatch Event rules to be notified in case of findings
+CloudWatch Events rules can target AWS Lambda or SNS
+Can protect against CryptoCurrency attacks (has a dedicated "finding" for it)
+
+![IMG_6999FE8F2AE1-1](assets/IMG_6999FE8F2AE1-1.jpeg)
+
+## Amazon Inspector
+Automated Security Assessments
+
+For EC2 instances
+    Leveraging the AWS System Manager (SSM) agent
+    Analyze against unintended network accessibility
+    Analyze the running OS against known vulnerabilities(缺陷)
+For Containers push to Amazon ECR
+    Assessment of containers as they are pushed
+    
+Reporting & integration with AWS Security Hub
+Send findings to Amazon Event Bridge
+
+## What does AWS Inspector evaluate?
+Remember: only for EC2 instances and container infrastructure
+Continuous scanning of the infrastructure, only when needed
+Package vulnerabilities (EC2 & ECR) - database of CVE
+Network reachability (EC2)
+A risk score is associated with all vulnerabilities for prioritization
+
+## Amazon Macie
+Amazon Macie is a fully managed data security and data privacy service that uses machine learning and pattern matching to discover and protect your sensitive data in AWS.
+
+Macie helps identify and alert you to sensitive data, such as personally identifiable information (PII)
+
+# Virtual Private Cloud (VPC)
+## Understanding CIDR (Classless Inter-Domain Routing) - IPv4
+Classes Inter-Domain Routing -  a method for allocationg IP addresses
+Used in Security Groups rules and AWS networking in general
+They help to define an IP address range:
+
+A CIDR consists of two components
+Base IP
+    Represents an IP contained in the range (XX.XX.XX.XX)
+    Example: 10.0.0.0, 192.168.0.0, ...
+
+Subnet Mask
+    Defines how many bits can change in the IP
+    Example:/0, /24, /32
+    Can take two forms:
+        /8 -> 255.0.0.0
+        /16 -> 255.0.0.0
+        /24 -> 255.255.255.0
+        /32 -> 255.255.255.255
+## Explain
+192.168.0.0/16 表示32位的二进制地址中，前16位为网络前缀，后16位代表主机号。
+
+在换算中，192.168.0.0/16 对应的二进制为：
+
+1100 0000，1010 1000，*0000 0000，0000 0000*
+其中红色为主机号，总共有16位。当这16位全为0时，取最小地址192.168.0.0，当这16位全为1时，取最大地址192.168.255.255。但请注意，在实际中，主机号全为0或者全为1的地址一般不使用，作为预留地址另有作用。所以第一个地址为：
+
+1100 0000，1010 1000，0000 0000，0000 0001
+即 192.168.0.1 最后一个地址为：
+
+1100 0000，1010 1000，1111 1111，1111 1110
+即 192.168.255.254。
+
+因此，192.168.0.0/16 代表的IP段就是 192.168.0.1 ~ 192.168.255.254.
+
+![IMG_0173](assets/IMG_0173.jpg)
+
+## Default VPC Walkthrough
+All new AWS accounts have a default VPC
+New EC2 instances are launched into the default VPC if no subnet(子网络) is specified
+Default VPC has Internet connectivity and all EC2 instances inside it have public IPv4 addresses
+We also get a public and a private IPv4 DNS names
+
+## VPC in AWS - IPv4
+Max.CIDR per VPC is 5, for each CIDR:
+    Min.size is /28 (16 IP addresses)
+    Max.size is /16 (65536 IP addresses)
+Because VPC is private, only the Private IPv4 ranges are allowed:
+    10.0.0.0 - 10.255.255.255 (10.0.0.0/8)
+    172.16.0.0 - 172.31.255.255 (172.16.0.0/12)
+    192.168.0.0 - 192.168.255.255 (192.168.0.0/16)
+
+Your VPC CIDR should NOT overlap with your other networks (e.g.,corporate)
+
+## VPC - Subnet (IPv4)
+AWS reserves 5 IP addresses (first 4 & last 1) in each subnet
+These 5 IP addresses are not available for use and can't be assigned to an EC2 instance
+Example: if CIDR block 10.0.0.0/24, then reserved IP addresses are:
+    10.0.0.0 - Network Address
+    10.0.0.1 - reserved by AWS for the VPC router
+    10.0.0.2 - reserved by AWS for mapping(映射) to Amazon-provided DNS
+    10.0.0.3 - reserved by AWS for future use
+    10.0.0.255 - Network Broadcast Address. AWS does not support broadcast in a VPC, therefore the address is reserved
+
+<u>Exam Tip</u>, if you need 29 IP addresses for EC2 instances:
+    You can't choose a subnet of size /27 (32 IP addresses, 32-5=27 < 29)
+    相当于2的5次方等于32，但是要减去5的保留的ip字段，所以实际可用的只有27个IP地址，不够29
+    You need to choose a subnet of size /26 (64 IP addresses, 64-5=59 > 29)
+    2的6次方等于64，减去5的保留IP，剩59个ip字段可用，满足有29个IP字段
+    
+![IMG_0174](assets/IMG_0174.PNG)
+![IMG_0176](assets/IMG_0176.PNG)
+
+## Bastion Hosts
+运维安全中心（堡垒机）是阿里云提供的运维和安全审计管控平台，可集中管理运维权限，全程管控操作行为，实时还原运维场景，保障运维行为身份可鉴别、权限可管控、操作可审计，解决资产多难管理、运维职责权限不清晰以及运维事件难追溯等问题， 助力企业满足等保合规需求。
+![IMG_0177](assets/IMG_0177.PNG)
+## Bastion Host Hands On
+![Screenshot 2023-03-06 at 7.13.54 PM](assets/Screenshot%202023-03-06%20at%207.13.54%20PM.png)
+chmod 0400 EC2-tutorial.pem\  #change permission to the EC2-tutorial key pair
+ssh ec2-user@10.0.23.221 -i EC2-tutorial.pem  #use key pair connect to private ip address through Bastion host
+
+## NAT Instance (Network Address Translation)![IMG_0179](assets/IMG_0179.jpg)
+![IMG_0180](assets/IMG_0180.jpg)
+![IMG_0181](assets/IMG_0181.jpg)
+
+## NAT Gateway![IMG_0182](assets/IMG_0182.jpg)
+
+## Network Access Control List (NACL)
+![IMG_0183](assets/IMG_0183.jpg)
+![IMG_0184](assets/IMG_0184.jpg)
+![IMG_0185](assets/IMG_0185.jpg)
+
+## Ephemeral(短暂的,短命的) Ports
+![IMG_0186](assets/IMG_0186.jpg)
+![IMG_0187](assets/IMG_0187.jpg)
+![IMG_0188](assets/IMG_0188.jpg)
+
+## VPC Peering
+![IMG_0189](assets/IMG_0189.jpg)
+![IMG_0190](assets/IMG_0190.jpg)
+![IMG_0191](assets/IMG_0191.jpg)
+
+## VPC Endpoints
+![IMG_0192](assets/IMG_0192.jpg)
+
+## VPC Endpoints (AWS PrivateLink)
+![IMG_0193](assets/IMG_0193.jpg)
+![IMG_0194](assets/IMG_0194.jpg)
+
+## Gateway or Interface Endpoint for S3?
+![IMG_0195](assets/IMG_0195.jpg)
+
