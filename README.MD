@@ -1847,3 +1847,64 @@ ssh ec2-user@10.0.23.221 -i EC2-tutorial.pem  #use key pair connect to private i
 ## Gateway or Interface Endpoint for S3?
 ![IMG_0195](assets/IMG_0195.jpg)
 
+## VPC Flow Logs
+![IMG_0196](assets/IMG_0196.jpg)
+![IMG_0198](assets/IMG_0198.jpg)
+dstaddr: destinaton address
+
+![IMG_0199](assets/IMG_0199.jpg)
+![IMG_0200](assets/IMG_0200.jpg)
+
+## AWS Site-to-Site VPN (Virtual Private Network)
+![IMG_0201](assets/IMG_0201.jpg)
+![IMG_0202](assets/IMG_0202.jpg)
+![IMG_0203](assets/IMG_0203.jpg)
+
+## Direct Connect (DX)
+![IMG_0204](assets/IMG_0204.jpg)
+![IMG_0205](assets/IMG_0205.jpg)
+![IMG_0206](assets/IMG_0206.jpg)
+![IMG_0207](assets/IMG_0207.jpg)
+![IMG_0208](assets/IMG_0208.jpg)
+![IMG_0209](assets/IMG_0209.jpg)
+
+## Site-to-Site VPN connection as a backup
+![IMG_0210](assets/IMG_0210.jpg)
+
+## Transit Gateway
+![IMG_0211](assets/IMG_0211.jpg)
+![IMG_0212](assets/IMG_0212.jpg)
+![IMG_0213](assets/IMG_0213.jpg)
+![IMG_0214](assets/IMG_0214.jpg)
+
+## VPC - Traffic Mirroring
+![IMG_0215](assets/IMG_0215.jpg)
+
+## IPv6 for VPC
+![IMG_0216](assets/IMG_0216.jpg)
+![IMG_0217](assets/IMG_0217.jpg)
+![IMG_0218](assets/IMG_0218.jpg)
+
+## Egress(外出)-only Internet Gateway
+![IMG_0219](assets/IMG_0219.jpg)
+![IMG_0220](assets/IMG_0220.jpg)
+
+## VPC Section Summary
+![IMG_0221](assets/IMG_0221.jpg)
+![IMG_0223](assets/IMG_0223.jpg)
+![IMG_0224](assets/IMG_0224.jpg)
+
+## Networking Costs in AWS per GB - Simplified
+![IMG_0225](assets/IMG_0225.jpg)
+![IMG_0226](assets/IMG_0226.jpg)
+![IMG_0227](assets/IMG_0227.jpg)
+![IMG_0228](assets/IMG_0228.jpg)
+
+## Network Protection on AWS
+![IMG_0229](assets/IMG_0229.jpg)
+![IMG_0230](assets/IMG_0230.jpg)
+![IMG_0231](assets/IMG_0231.jpg)
+
+# Disaster Recovery
+
+## Data Migration
